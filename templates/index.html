@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Social Media Automation</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">AI Social</div>
+      <div class="brand-sub">Automation Studio</div>
+      <nav>
+        <button class="nav active" data-tab="generate">Generate</button>
+        <button class="nav" data-tab="history">History</button>
+        <button class="nav" data-tab="scheduler">Scheduler</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="pill">{% if has_openai %}OpenAI ready{% else %}Offline demo{% endif %}</div>
+        <div class="muted">Posts: {{ stats.posts }} · Pending: {{ stats.pending_schedules }}</div>
+      </div>
+    </aside>
+
+    <main>
+      <section id="tab-generate" class="tab active">
+        <h1>Generate Post</h1>
+        <div class="grid">
+          <form id="gen-form" class="card">
+            <label>Topic</label>
+            <textarea name="topic" rows="3" placeholder="e.g. I stopped checking Slack before doing real work" required></textarea>
+
+            <div class="row">
+              <div>
+                <label>Industry</label>
+                <select name="industry">
+                  {% for i in industries %}<option {% if i == 'Technology' %}selected{% endif %}>{{ i }}</option>{% endfor %}
+                </select>
+              </div>
+              <div>
+                <label>Tone</label>
+                <select name="tone">
+                  {% for t in tones %}<option {% if t == 'Professional' %}selected{% endif %}>{{ t }}</option>{% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Language</label>
+                <select name="language">
+                  {% for l in languages %}<option {% if l == 'English' %}selected{% endif %}>{{ l }}</option>{% endfor %}
+                </select>
+              </div>
+              <div>
+                <label>Tone mode</label>
+                <select name="tone_mode">
+                  <option>Professional</option>
+                  <option>Casual</option>
+                </select>
+              </div>
+            </div>
+
+            <label>Platforms</label>
+            <div class="checks">
+              {% for p in platforms %}
+              <label class="check"><input type="checkbox" name="platforms" value="{{ p }}" checked /> {{ p }}</label>
+              {% endfor %}
+            </div>
+
+            <label>Word count: <span id="wc">180</span></label>
+            <input type="range" name="word_count" min="80" max="300" value="180" oninput="document.getElementById('wc').textContent=this.value" />
+
+            <div class="checks">
+              <label class="check"><input type="checkbox" name="auto_image" value="true" checked /> Auto Image</label>
+              <label class="check"><input type="checkbox" name="emoji_enabled" value="true" /> Emojis</label>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn primary" id="btn-gen">Generate</button>
+              <button type="button" class="btn" id="btn-img">Generate Image</button>
+            </div>
+            <p id="status" class="muted">Ready</p>
+          </form>
+
+          <div class="card preview">
+            <div class="preview-top">
+              <h2>Preview</h2>
+              <select id="platform-view">
+                <option>LinkedIn</option>
+                <option>X</option>
+                <option>Facebook</option>
+                <option>Instagram</option>
+                <option>Image Prompt</option>
+                <option>Generated Image</option>
+                <option>JSON</option>
+              </select>
+            </div>
+            <pre id="preview-text" class="preview-box">Generate a post to see content here.</pre>
+            <img id="preview-img" class="preview-img hidden" alt="Generated" />
+            <p id="quality" class="muted">Quality: —</p>
+            <div class="actions wrap">
+              <a class="btn" href="/api/export/json" id="ex-json">JSON</a>
+              <a class="btn" href="/api/export/md" id="ex-md">Markdown</a>
+              <a class="btn" href="/api/export/txt" id="ex-txt">TXT</a>
+              <button type="button" class="btn" id="btn-copy">Copy</button>
+            </div>
+            <p class="muted" id="post-id-line">{% if post_id %}Last post #{{ post_id }}{% endif %}</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-history" class="tab">
+        <h1>History</h1>
+        <div class="card">
+          <div class="row">
+            <input id="hist-q" placeholder="Search posts…" />
+            <button class="btn" id="btn-hist">Search</button>
+          </div>
+          <ul id="hist-list" class="list"></ul>
+        </div>
+      </section>
+
+      <section id="tab-scheduler" class="tab">
+        <h1>Scheduler</h1>
+        <form id="sched-form" class="card">
+          <div class="row">
+            <div>
+              <label>Post ID</label>
+              <input name="post_id" type="number" required placeholder="1" />
+            </div>
+            <div>
+              <label>Platform</label>
+              <select name="platform">
+                {% for p in platforms %}<option>{{ p }}</option>{% endfor %}
+              </select>
+            </div>
+            <div>
+              <label>Date</label>
+              <input name="date" type="date" required />
+            </div>
+            <div>
+              <label>Time</label>
+              <input name="time" type="time" required value="09:30" />
+            </div>
+          </div>
+          <label>Notes</label>
+          <input name="notes" placeholder="Optional" />
+          <button class="btn primary" type="submit">Schedule</button>
+        </form>
+        <div class="card">
+          <button class="btn" id="btn-sched-refresh">Refresh</button>
+          <pre id="sched-list" class="preview-box">No schedules yet.</pre>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

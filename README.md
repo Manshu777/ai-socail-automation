@@ -1,45 +1,55 @@
 # AI Social Media Automation
 
-Desktop app for generating human-sounding social posts for LinkedIn, X, Facebook, and Instagram — with scheduling, history, and exports.
+Generate human-sounding social posts for LinkedIn, X, Facebook, and Instagram — desktop **or** free web deploy on Render.
+
+## Why Render failed before
+
+Render has **no GUI / no `_tkinter`**. The old CustomTkinter desktop UI cannot run there.
+
+`app.py` now auto-switches to a **FastAPI web UI** on Render (or when Tk is missing).
+
+## Deploy on Render (free)
+
+1. Push this repo to GitHub
+2. [Render](https://render.com) → **New → Web Service** → connect repo
+3. Settings:
+   - **Runtime:** Python 3
+   - **Build:** `pip install -r requirements.txt`
+   - **Start:** `python app.py`
+   - **Python version:** `3.12.8` (env `PYTHON_VERSION`)
+4. Add env var: `OPENAI_API_KEY` = your key (optional but recommended)
+5. Deploy → open the `.onrender.com` URL
+
+Or use the included `render.yaml` Blueprint.
 
 ## Features
 
-- Modern dark UI (CustomTkinter)
+- Web UI (Render / cloud) + Desktop UI (local Mac/Windows)
 - OpenAI generation with optional NVIDIA NIM fallback
 - Offline demo mode when no API keys are set
-- Multi-platform previews with character counters
-- JSON / Markdown / TXT export
-- SQLite history (search, edit, reuse, delete)
-- Background scheduler with token-aware publishing stubs
-- Settings saved to `.env`
-- Quality checks: X limit, hashtag dedupe, readability, uniqueness
+- Auto image generation (DALL·E or local poster)
+- Multi-platform previews, exports, history, scheduler
 
-## Requirements
-
-- Python **3.12+ with Tkinter** (`_tkinter`)
-  - On macOS Homebrew: `brew install python@3.12 python-tk@3.12`
-  - Prefer `python3.12` over newer Homebrew builds that ship without Tk
-- macOS / Windows / Linux desktop environment
-
-## Quick start
+## Local quick start
 
 ```bash
 cd AI-Social-Automation
 python3.12 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-# Add OPENAI_API_KEY (and optional tokens) in .env or via Settings
+# Desktop UI (needs Tk):
 python app.py
+# Or force web UI in browser:
+python app.py --web
 ```
-
-If `import _tkinter` fails, install Tk for your Python version before launching the UI.
 ## Project layout
 
 | File | Role |
 |------|------|
-| `app.py` | Entry point |
-| `ui.py` | Dashboard & screens |
+| `app.py` | Entry point (desktop or web) |
+| `web_app.py` | FastAPI web UI (Render) |
+| `ui.py` | Desktop CustomTkinter UI |
 | `generator.py` | LLM generation / rewrite |
 | `prompts.py` | System & user prompts |
 | `image_prompt.py` | Image prompt helpers |

@@ -1,0 +1,23 @@
+# Render Blueprint — free web deploy
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: ai-social-automation
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: APP_MODE
+        value: web
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: AUTO_GENERATE_IMAGE
+        value: "true"
+      - key: IMAGE_MODEL
+        value: dall-e-3
+      - key: USE_NVIDIA_FALLBACK
+        value: "false"
