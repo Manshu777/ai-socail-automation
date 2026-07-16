@@ -5,9 +5,14 @@ let lastPostId = null;
 document.querySelectorAll(".nav").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".nav").forEach((b) => b.classList.remove("active"));
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach((t) => {
+      t.classList.remove("active");
+      t.style.display = "none";
+    });
     btn.classList.add("active");
-    document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
+    const panel = document.getElementById(`tab-${btn.dataset.tab}`);
+    panel.classList.add("active");
+    panel.style.display = "block";
     if (btn.dataset.tab === "history") loadHistory();
     if (btn.dataset.tab === "scheduler") loadSchedules();
   });
@@ -27,18 +32,20 @@ function renderPreview() {
   if (!lastPayload) return;
   const view = platformView.value;
   if (view === "Generated Image") {
-    previewText.classList.add("hidden");
-    previewImg.classList.remove("hidden");
-    previewImg.src = lastPayload.image_url || "";
-    if (!lastPayload.image_url) {
-      previewImg.classList.add("hidden");
-      previewText.classList.remove("hidden");
+    previewText.style.display = "none";
+    if (lastPayload.image_url) {
+      previewImg.style.display = "block";
+      previewImg.src = lastPayload.image_url;
+    } else {
+      previewImg.style.display = "none";
+      previewText.style.display = "block";
       previewText.textContent = "No image yet. Click Generate Image.";
     }
     return;
   }
-  previewImg.classList.add("hidden");
-  previewText.classList.remove("hidden");
+  previewImg.style.display = "none";
+  previewImg.removeAttribute("src");
+  previewText.style.display = "block";
 
   let text = "";
   if (view === "LinkedIn") {

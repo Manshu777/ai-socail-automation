@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Social Media Automation</title>
-  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+{{ css|safe }}
+  </style>
 </head>
 <body>
   <div class="layout">
@@ -12,9 +14,9 @@
       <div class="brand">AI Social</div>
       <div class="brand-sub">Automation Studio</div>
       <nav>
-        <button class="nav active" data-tab="generate">Generate</button>
-        <button class="nav" data-tab="history">History</button>
-        <button class="nav" data-tab="scheduler">Scheduler</button>
+        <button type="button" class="nav active" data-tab="generate">Generate</button>
+        <button type="button" class="nav" data-tab="history">History</button>
+        <button type="button" class="nav" data-tab="scheduler">Scheduler</button>
       </nav>
       <div class="sidebar-foot">
         <div class="pill">{% if has_openai %}OpenAI ready{% else %}Offline demo{% endif %}</div>
@@ -23,7 +25,7 @@
     </aside>
 
     <main>
-      <section id="tab-generate" class="tab active">
+      <section id="tab-generate" class="tab active" style="display:block">
         <h1>Generate Post</h1>
         <div class="grid">
           <form id="gen-form" class="card">
@@ -97,7 +99,7 @@
               </select>
             </div>
             <pre id="preview-text" class="preview-box">Generate a post to see content here.</pre>
-            <img id="preview-img" class="preview-img hidden" alt="Generated" />
+            <img id="preview-img" class="preview-img" alt="Generated" style="display:none" />
             <p id="quality" class="muted">Quality: —</p>
             <div class="actions wrap">
               <a class="btn" href="/api/export/json" id="ex-json">JSON</a>
@@ -110,18 +112,18 @@
         </div>
       </section>
 
-      <section id="tab-history" class="tab">
+      <section id="tab-history" class="tab" style="display:none">
         <h1>History</h1>
         <div class="card">
           <div class="row">
             <input id="hist-q" placeholder="Search posts…" />
-            <button class="btn" id="btn-hist">Search</button>
+            <button type="button" class="btn" id="btn-hist">Search</button>
           </div>
           <ul id="hist-list" class="list"></ul>
         </div>
       </section>
 
-      <section id="tab-scheduler" class="tab">
+      <section id="tab-scheduler" class="tab" style="display:none">
         <h1>Scheduler</h1>
         <form id="sched-form" class="card">
           <div class="row">
@@ -149,12 +151,14 @@
           <button class="btn primary" type="submit">Schedule</button>
         </form>
         <div class="card">
-          <button class="btn" id="btn-sched-refresh">Refresh</button>
+          <button type="button" class="btn" id="btn-sched-refresh">Refresh</button>
           <pre id="sched-list" class="preview-box">No schedules yet.</pre>
         </div>
       </section>
     </main>
   </div>
-  <script src="/static/app.js"></script>
+  <script>
+{{ js|safe }}
+  </script>
 </body>
 </html>

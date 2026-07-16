@@ -12,8 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Form, HTTPException, Query, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from config import INDUSTRIES, LANGUAGES, PLATFORMS, TONES, config
@@ -39,8 +38,32 @@ TEMPLATES_DIR.mkdir(exist_ok=True)
 STATIC_DIR.mkdir(exist_ok=True)
 
 app = FastAPI(title="AI Social Media Automation", version="1.0.0")
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+
+def _read_asset(name: str) -> str:
+    path = STATIC_DIR / name
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    logger.warning("Missing static asset: %s", path)
+    return ""
+
+
+@app.get("/assets/style.css")
+async def asset_css() -> FileResponse:
+    path = STATIC_DIR / "style.css"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="style.css missing")
+    return FileResponse(path, media_type="text/css")
+
+
+@app.get("/assets/app.js")
+async def asset_js() -> FileResponse:
+    path = STATIC_DIR / "app.js"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="app.js missing")
+    return FileResponse(path, media_type="application/javascript")
+
 
 # In-memory last generation for the session-less demo UI
 _last_payload: dict[str, Any] | None = None
@@ -51,13 +74,18 @@ _last_post_id: int | None = None
 @app.on_event("startup")
 def _startup() -> None:
     post_scheduler.start()
-    logger.info("Web app started (scheduler on)")
+    logger.info(
+        "Web app started | static=%s exists=%s files=%s",
+        STATIC_DIR,
+        STATIC_DIR.exists(),
+        list(STATIC_DIR.glob("*")) if STATIC_DIR.exists() else [],
+    )
 
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request) -> HTMLResponse:
     stats = db.stats()
-    # Starlette 1.x: TemplateResponse(request, name, context)
+    # Embed CSS/JS so Render works even if /static mount 404s
     return templates.TemplateResponse(
         request,
         "index.html",
@@ -72,6 +100,8 @@ async def home(request: Request) -> HTMLResponse:
             "quality": _last_quality,
             "post_id": _last_post_id,
             "payload_json": safe_json_dumps(_last_payload) if _last_payload else "",
+            "css": _read_asset("style.css"),
+            "js": _read_asset("app.js"),
         },
     )
 
