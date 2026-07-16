@@ -57,10 +57,11 @@ def _startup() -> None:
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request) -> HTMLResponse:
     stats = db.stats()
+    # Starlette 1.x: TemplateResponse(request, name, context)
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
-            "request": request,
             "stats": stats,
             "industries": INDUSTRIES,
             "tones": TONES,
